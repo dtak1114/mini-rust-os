@@ -12,6 +12,7 @@ start:
     call check_long_mode
 
     call set_up_page_tables
+    call set_up_SSE
     call enable_paging
 
     ;load 64bit GDT(global description table)
@@ -41,6 +42,29 @@ error:
     mov dword [0xb8000], 0x4f204f20
     mov byte  [0xb800a], al
     hlt
+;;; enable SSE
+
+set_up_SSE:
+    ;check if SSE can be used
+    mov eax, 0x1
+    cpuid
+    test edx, 1<<5
+    jz .no_SSE
+
+    ;enable SSE
+    mov eax, cr0
+    and ax, 0xFFFB ; clear coprocessor eucation CR0.EM
+    or ax, 0x2     ; sets coprocessor monitoring CR0.MP
+    mov cr0, eax
+    mov eax, cr4
+    or ax, 3 << 9  ; sets CR4.OSFXSR and CR4.OSXMMEXCPT at the sametime
+    mov cr4, eax
+
+    ret
+.no_SSE:
+    mov al, "a"
+    jmp error
+
 
 ;;; boot chcks ;;;
 check_multiboot:
