@@ -5,3 +5,14 @@ authors = ["Daisuke Takahashi <d.takahashi1811@gmail.com>"]
 
 [lib]
 crate-type = ["staticlib"]
+
+[dependencies]
+rlibc = "0.1.4"
+
+# this profile used when `cargo build`.
+[profile.dev]
+panic = "abort" # disable all unwinding feature
+
+# this profile used when `cargo build --release`.
+[profile.release]
+panic = "abort"

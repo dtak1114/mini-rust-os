@@ -4,7 +4,8 @@ SECTIONS {
     . = 1M;
     .boot :
     {
-        *(.multiboot_header)
+        /* make sure not to garbage collected by ld */
+        KEEP(*(.multiboot_header))
     }
     
     .text :
