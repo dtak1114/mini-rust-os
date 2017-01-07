@@ -1,4 +1,5 @@
 global start
+extern long_mode_start
 
 section .text
 bits 32
@@ -15,6 +16,15 @@ start:
 
     ;load 64bit GDT(global description table)
     lgdt [gdt64.pointer]
+
+    ;update ss, ds, es selector to fit to long mode
+    ; mov ax, 16 ; GDT's data segments starts at byte 16
+    mov ax, gdt64.data
+    mov ss, ax ; stack selector
+    mov ds, ax ; data selector
+    mov es, ax ; extra selector
+
+    jmp gdt64.code:long_mode_start ; jar jump to start long mode by register cs 
 
     ;print `OK` to screen
     mov dword [0xb8000], 0x2f4b2f4f
@@ -168,7 +178,9 @@ section .rodata ; read-only data section
 gdt64: ; GDT is for segmentation. required to enter into long-mode.
     ; we define 3 GTD segment entries
     dq 0 ;zero entry ; define quad = 64bit constant
+.code: equ $ - gdt64 ; equ define constants
     dq (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) ; code segment
+.data: equ $ - gdt64
     dq (1<<44) | (1<<47) | (1<<41) ; data segment
 .pointer:
     dw $ - gdt64 - 1 ; current ptr - gtg64 ptr -1 == length of gdt64 -1
