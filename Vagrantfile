@@ -74,8 +74,7 @@ Vagrant.configure(2) do |config|
       sudo apt-get install -y curl
       sudo apt-get install build-essential -y
       sudo apt-get install entr -y
-      curl -sf https://raw.githubusercontent.com/brson/multirust/master/blastoff.sh | sh -s -- --yes
-      multirust default nightly-2015-11-19 
+      curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
   SHELL
 
   config.ssh.forward_x11 = true
