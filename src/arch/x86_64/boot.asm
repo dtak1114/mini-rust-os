@@ -13,6 +13,9 @@ start:
     call set_up_page_tables
     call enable_paging
 
+    ;load 64bit GDT(global description table)
+    lgdt [gdt64.pointer]
+
     ;print `OK` to screen
     mov dword [0xb8000], 0x2f4b2f4f
 
@@ -161,4 +164,13 @@ stack_bottom:
 stack_top:
 
 
+section .rodata ; read-only data section
+gdt64: ; GDT is for segmentation. required to enter into long-mode.
+    ; we define 3 GTD segment entries
+    dq 0 ;zero entry ; define quad = 64bit constant
+    dq (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) ; code segment
+    dq (1<<44) | (1<<47) | (1<<41) ; data segment
+.pointer:
+    dw $ - gdt64 - 1 ; current ptr - gtg64 ptr -1 == length of gdt64 -1
+    dq gdt64
 
