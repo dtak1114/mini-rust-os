@@ -1,3 +1,6 @@
+#![feature(const_fn)] 
+#![feature(unique)] 
+#![feature(lang_items)] 
 // defining attributes
 // allow lang_items feature attribute.(only in nightly build)
 #![feature(lang_items)] 
@@ -5,20 +8,23 @@
 #![no_std] 
 
 extern crate rlibc; //import baremetal rawr api in rust
+extern crate volatile; //keep buffer out of optimization
+mod vga_buffer;
 
 // put extern to be compartible with C lang 
 #[no_mangle] 
 pub extern fn rust_main() {
-    let hello = b"Hello World!"; //define byte string
-    let color_byte = 0x1f;
+    // let hello = b"Hello World!"; //define byte string
+    // let color_byte = 0x1f;
     
-    let mut hello_colored = [color_byte; 24]; // create array size of 24  with color_byte
-    for (i, char_byte) in hello.into_iter().enumerate() {
-        hello_colored[i*2] = *char_byte; //create color=bye + char_byte pair for each character
-    }
+    // let mut hello_colored = [color_byte; 24]; // create array size of 24  with color_byte
+    // for (i, char_byte) in hello.into_iter().enumerate() {
+        // hello_colored[i*2] = *char_byte; //create color=bye + char_byte pair for each character
+    // }
 
-    let buffer_ptr = (0xb8000 + 1988) as *mut _;
-    unsafe { *buffer_ptr = hello_colored }; //tell rust that this ptr operation is unsafe
+    // let buffer_ptr = (0xb8000 + 1988) as *mut _;
+    // unsafe { *buffer_ptr = hello_colored }; //tell rust that this ptr operation is unsafe
+    vga_buffer::print_something();
 
     loop{}
 } 
