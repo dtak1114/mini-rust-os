@@ -9,6 +9,7 @@
 
 extern crate rlibc; //import baremetal rawr api in rust
 extern crate volatile; //keep buffer out of optimization
+extern crate spin; //introduce spinlock to control race condition for out static writer
 mod vga_buffer;
 
 // put extern to be compartible with C lang 
@@ -24,8 +25,10 @@ pub extern fn rust_main() {
 
     // let buffer_ptr = (0xb8000 + 1988) as *mut _;
     // unsafe { *buffer_ptr = hello_colored }; //tell rust that this ptr operation is unsafe
-    vga_buffer::print_something();
+    vga_buffer::WRITER.lock().write_str("Hello again");
 
+    use core::fmt::Write; // required import to use write! macro 
+    write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337);
     loop{}
 } 
 //lang defines language item: plugin to the compiler

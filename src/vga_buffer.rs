@@ -84,7 +84,30 @@ impl Writer {
         unsafe { self.buffer.get_mut() }
     }
 
-    fn new_line(&mut self){ /* TODO */ }
+    fn new_line(&mut self){ 
+        //move all current character 1 line upper row
+        for row in 1..BUFFER_HEIGHT {
+            for col in 1..BUFFER_WIDTH {
+                let buffer = self.buffer();
+                let character = buffer.chars[row][col].read();
+                buffer.chars[row-1][col].write(character);
+            }
+        }
+        //remove old row
+        self.clear_row(BUFFER_HEIGHT);
+        self.column_position = 0;
+    }
+
+    fn clear_row(&mut self, row: usize) {
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+        //write 1 row out with blank character
+        for col in 0..BUFFER_WIDTH {
+            self.buffer().chars[row][col].write(blank);
+        }
+    }
 }
 
 use core::fmt;
@@ -99,6 +122,13 @@ impl fmt::Write for Writer {
     }
 }
 
+//define static writer object, which must be thread safe
+use spin::Mutex; //we cannot support threads or blocking feature yet. using spin
+pub static WRITER: Mutex<Writer> = Mutex::new(Writer{
+    column_position: 0,
+    color_code: ColorCode::new(Color::LightGreen, Color::Black),
+    buffer: unsafe { Unique::new(0xb8000 as *mut _ )}
+    });
 
 pub fn print_something() {
     use core::fmt::Write;
