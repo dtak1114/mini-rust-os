@@ -12,9 +12,9 @@ pub extern fn rust_main() {
     let hello = b"Hello World!"; //define byte string
     let color_byte = 0x1f;
     
-    let mut hello_colored = [color_byte; 24];
+    let mut hello_colored = [color_byte; 24]; // create array size of 24  with color_byte
     for (i, char_byte) in hello.into_iter().enumerate() {
-        hello_colored[i*2] = *char_byte;
+        hello_colored[i*2] = *char_byte; //create color=bye + char_byte pair for each character
     }
 
     let buffer_ptr = (0xb8000 + 1988) as *mut _;
