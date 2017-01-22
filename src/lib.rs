@@ -10,18 +10,35 @@
 extern crate rlibc; //import baremetal rawr api in rust
 extern crate volatile; //keep buffer out of optimization
 extern crate spin; //introduce spinlock to control race condition for out static writer
+extern crate multiboot2; //to take and operate multiboot information
 
 #[macro_use]
 mod vga_buffer;
 
 // put extern to be compartible with C lang 
 #[no_mangle] 
-pub extern fn rust_main() {
+pub extern fn rust_main(multiboot_information_address: usize) {
     vga_buffer::clear_screen();
+    println!("{}", { println!("Hello"); "World!"});
+
+    // loading multiboot2 info
+    // boot info consists of multi tags
+    let boot_info = unsafe{
+        multiboot2::load(multiboot_information_address)
+    };
+    let memory_map_tag = boot_info.memory_map_tag()
+        .expect("Memory map tag required");
+
+    println!("memory areas");
+    for area in memory_map_tag.memory_areas(){
+        println!("   start: 0x{:x}, length: 0x{:x}",
+            area.base_addr, area.length);
+    }
+
+
+
     // println!("Hello, {}!", "World");
 
-    //this causes deadlock!
-    println!("{}", { println!("Hello"); "World!"});
 
     // use core::fmt::Write;
     // vga_buffer::WRITER.lock().write_str("Hello again");

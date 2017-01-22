@@ -6,6 +6,7 @@ bits 32
 
 start:
     mov esp, stack_top ; 
+    mov edi, ebx ; Move Multiboot info pointer to edi. ebx has boot infomation by default(like available memory etc.)
 
     call check_multiboot
     call check_cpuid
@@ -194,7 +195,7 @@ p2_table:
     resb 4096
 ;stack
 stack_bottom:
-    resb 64
+    resb 4096
 stack_top:
 
 
