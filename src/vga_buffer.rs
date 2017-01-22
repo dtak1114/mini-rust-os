@@ -137,13 +137,18 @@ macro_rules! println {
     ($fmt:expr, $($arg:tt)*) => (print!(concat!($fmt, "\n"), $($arg)*));
 }
 
-//wrap standard print to only fit to our VGA adaptor
+//wrap standard print macro to fit to our VGA adaptor
 macro_rules! print {
     ($($arg:tt)*) => ({
-        use core::fmt::Write;
-        let mut writer = $crate::vga_buffer::WRITER.lock();
-        writer.write_fmt(format_args!($($arg)*)).unwrap();
+        // to avoid deadlocking, let it eval $($arg)* first.
+        $crate::vga_buffer::print(format_args!($($arg)*));
     });
+}
+
+pub fn print(args: fmt::Arguments){
+    // the core of print! macro.
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
 }
 
 pub fn clear_screen() {

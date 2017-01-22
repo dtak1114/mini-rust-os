@@ -18,7 +18,10 @@ mod vga_buffer;
 #[no_mangle] 
 pub extern fn rust_main() {
     vga_buffer::clear_screen();
-    println!("Hello, {}!", "World");
+    // println!("Hello, {}!", "World");
+
+    //this causes deadlock!
+    println!("{}", { println!("Hello"); "World!"});
 
     // use core::fmt::Write;
     // vga_buffer::WRITER.lock().write_str("Hello again");
