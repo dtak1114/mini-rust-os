@@ -10,8 +10,18 @@ SECTIONS {
     
     .text :
     {
-        *(.text)
+        *(.text .text.*)
+        /* merge text subsections  */
     }
 
+    .rodata : {
+      *(.rodata .rodata.*)
+
+        /* merge rodata subsections  */
+    }
+
+    .data.rel.ro : {
+      *(.data.rel.ro.local*) *(.data.rel.ro .data.rel.ro.*)
+    }
 }
 

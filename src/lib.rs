@@ -35,7 +35,34 @@ pub extern fn rust_main(multiboot_information_address: usize) {
             area.base_addr, area.length);
     }
 
-    // println!("Hello, {}!", "World");
+    // get section info for out kernel ELF file
+    let elf_sections_tag = boot_info.elf_sections_tag()
+        .expect("Elf-sections tag required");
+
+    println!("kernel sections:");
+    for section in elf_sections_tag.sections(){
+        let section_attr = match section.flags {
+            1u64 => "writable",
+            2u64 => "in memory",
+            4u64 => "executable",
+            _ => "the other"
+        };
+
+        println!("  addr: 0x{:x}, size: 0x{:x}, flags: 0x{:x}({:})",
+             section.addr, section.size, section.flags, section_attr);
+
+    }
+
+    // calculate kernel (start|end)
+    let kernel_start = elf_sections_tag.sections().map(|s| s.addr).min().unwrap();
+    let kernel_end = elf_sections_tag.sections().map(|s| s.addr + s.size).max().unwrap();
+    println!("kernel_start: 0x{:x}, kernel_end: 0x{:x}", kernel_start
+            , kernel_end);;
+
+    // calculate multiboot info section
+    let multiboot_start = multiboot_information_address;
+    let multiboot_end = multiboot_start + (boot_info.total_size as usize);
+    println!("multiboot_start: 0x{:x}, multiboot_end: 0x{:x}", multiboot_start, multiboot_end);
 
 
     // use core::fmt::Write;
